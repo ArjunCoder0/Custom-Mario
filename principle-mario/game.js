@@ -992,10 +992,6 @@ function gameLoop() {
         drawCombo();
         drawPowerUpBar();
         drawCredits();
-        
-        // Debug: Draw a test rectangle to ensure canvas is working
-        ctx.fillStyle = 'red';
-        ctx.fillRect(10, 10, 50, 50);
     }
     
     requestAnimationFrame(gameLoop);
@@ -1173,12 +1169,6 @@ function initialize() {
     
     // Adjust for mobile
     adjustCanvasForMobile();
-    
-    // Test canvas immediately
-    console.log('🧪 Testing canvas...');
-    ctx.fillStyle = 'green';
-    ctx.fillRect(0, 0, 100, 100);
-    console.log('🧪 Green square drawn');
     
     // Setup event listeners first
     setupEventListeners();
