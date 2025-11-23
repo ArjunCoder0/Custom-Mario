@@ -11,13 +11,20 @@ let lastPlatformX = 0;
 let distance = 0;
 let bestScore = localStorage.getItem('bestScore') || 0;
 
-// Leaderboard system
-let leaderboard = [];
-let currentPlayerName = 'Anonymous';
+// Storage key for leaderboard
+const STORAGE_KEY = 'customMarioLeaderboard';
 
-// Backend API endpoint (using a simple JSON storage service)
-const API_URL = 'https://api.jsonbin.io/v3/b/6756a8e5acd3cb34a8e8e8a8';
-const API_KEY = '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW';
+// Leaderboard system
+let leaderboard = (() => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        console.error('Error loading leaderboard:', e);
+        return [];
+    }
+})();
+let currentPlayerName = 'Anonymous';
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let scaleFactor = 1;
 let comboCount = 0;
@@ -1233,7 +1240,7 @@ function setupEventListeners() {
 }
 
 // Leaderboard Functions
-async function saveScoreToServer() {
+function saveScoreToServer() {
     const newEntry = {
         name: currentPlayerName,
         score: score,
@@ -1242,31 +1249,30 @@ async function saveScoreToServer() {
         date: new Date().toLocaleString()
     };
     
-    console.log('💾 Saving score to server:', newEntry);
+    console.log('💾 Saving score:', newEntry);
     
     try {
-        // Fetch current leaderboard
-        const response = await fetch(API_URL, {
-            method: 'GET',
-            headers: {
-                'X-Master-Key': API_KEY
-            }
-        });
-        
+        // Load current leaderboard from localStorage
         let leaderboardData = [];
-        if (response.ok) {
-            const result = await response.json();
-            leaderboardData = result.record || [];
+        const stored = localStorage.getItem(STORAGE_KEY);
+        
+        if (stored) {
+            try {
+                leaderboardData = JSON.parse(stored);
+                console.log('📥 Loaded existing leaderboard:', leaderboardData);
+            } catch (e) {
+                console.error('❌ Error parsing stored leaderboard:', e);
+                leaderboardData = [];
+            }
         }
         
-        console.log('📥 Current leaderboard from server:', leaderboardData);
-        
-        // Add new score
+        // Ensure it's an array
         if (!Array.isArray(leaderboardData)) {
             leaderboardData = [];
         }
-        leaderboardData.push(newEntry);
         
+        // Add new score
+        leaderboardData.push(newEntry);
         console.log('📝 Added new entry:', newEntry);
         
         // Sort and keep top 10
@@ -1275,57 +1281,40 @@ async function saveScoreToServer() {
         
         console.log('📊 Sorted leaderboard (top 10):', leaderboardData);
         
-        // Save back to server
-        const putResponse = await fetch(API_URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': API_KEY
-            },
-            body: JSON.stringify(leaderboardData)
-        });
+        // Save to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(leaderboardData));
         
-        if (putResponse.ok) {
-            leaderboard = leaderboardData;
-            console.log('✅ Score saved to server successfully');
-        } else {
-            console.error('❌ Failed to save to server:', putResponse.status);
-        }
+        // Update in-memory leaderboard
+        leaderboard = leaderboardData;
+        
+        console.log('✅ Score saved successfully to storage');
+        console.log('🏆 Current leaderboard:', leaderboard);
     } catch (error) {
         console.error('❌ Error saving score:', error);
     }
 }
 
-async function showLeaderboard() {
+function showLeaderboard() {
     gameState = 'leaderboard';
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('leaderboardScreen').classList.remove('hidden');
     
-    console.log('🔄 Fetching leaderboard from server...');
+    console.log('🔄 Loading leaderboard from storage...');
     
-    // Fetch latest leaderboard from server
+    // Load leaderboard from localStorage
     try {
-        const response = await fetch(API_URL, {
-            method: 'GET',
-            headers: {
-                'X-Master-Key': API_KEY
-            }
-        });
-        
-        console.log('📡 Server response status:', response.status);
-        
-        if (response.ok) {
-            const result = await response.json();
-            console.log('📥 Raw response from server:', result);
-            
-            leaderboard = result.record || [];
-            console.log('📊 Fetched leaderboard from server:', leaderboard);
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            leaderboard = JSON.parse(stored);
+            console.log('� Loaded leaderboard:', leaderboard);
         } else {
-            console.error('❌ Server error:', response.status);
+            console.log('📊 No leaderboard data found');
+            leaderboard = [];
         }
     } catch (error) {
-        console.error('❌ Error fetching leaderboard:', error);
+        console.error('❌ Error loading leaderboard:', error);
+        leaderboard = [];
     }
     
     updateLeaderboardDisplay();
