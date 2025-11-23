@@ -17,6 +17,7 @@ let currentPlayerName = 'Anonymous';
 
 // Backend API endpoint (using a simple JSON storage service)
 const API_URL = 'https://api.jsonbin.io/v3/b/6756a8e5acd3cb34a8e8e8a8';
+const API_KEY = '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW';
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let scaleFactor = 1;
 let comboCount = 0;
@@ -1248,38 +1249,48 @@ async function saveScoreToServer() {
         const response = await fetch(API_URL, {
             method: 'GET',
             headers: {
-                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+                'X-Master-Key': API_KEY
             }
         });
         
-        let data = { record: [] };
+        let leaderboardData = [];
         if (response.ok) {
             const result = await response.json();
-            data = result.record || { record: [] };
+            leaderboardData = result.record || [];
         }
+        
+        console.log('📥 Current leaderboard from server:', leaderboardData);
         
         // Add new score
-        if (!Array.isArray(data.record)) {
-            data.record = [];
+        if (!Array.isArray(leaderboardData)) {
+            leaderboardData = [];
         }
-        data.record.push(newEntry);
+        leaderboardData.push(newEntry);
+        
+        console.log('📝 Added new entry:', newEntry);
         
         // Sort and keep top 10
-        data.record.sort((a, b) => b.score - a.score);
-        data.record = data.record.slice(0, 10);
+        leaderboardData.sort((a, b) => b.score - a.score);
+        leaderboardData = leaderboardData.slice(0, 10);
+        
+        console.log('📊 Sorted leaderboard (top 10):', leaderboardData);
         
         // Save back to server
-        await fetch(API_URL, {
+        const putResponse = await fetch(API_URL, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+                'X-Master-Key': API_KEY
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(leaderboardData)
         });
         
-        leaderboard = data.record;
-        console.log('✅ Score saved to server successfully');
+        if (putResponse.ok) {
+            leaderboard = leaderboardData;
+            console.log('✅ Score saved to server successfully');
+        } else {
+            console.error('❌ Failed to save to server:', putResponse.status);
+        }
     } catch (error) {
         console.error('❌ Error saving score:', error);
     }
@@ -1291,19 +1302,27 @@ async function showLeaderboard() {
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('leaderboardScreen').classList.remove('hidden');
     
+    console.log('🔄 Fetching leaderboard from server...');
+    
     // Fetch latest leaderboard from server
     try {
         const response = await fetch(API_URL, {
             method: 'GET',
             headers: {
-                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+                'X-Master-Key': API_KEY
             }
         });
         
+        console.log('📡 Server response status:', response.status);
+        
         if (response.ok) {
             const result = await response.json();
-            leaderboard = result.record?.record || [];
+            console.log('📥 Raw response from server:', result);
+            
+            leaderboard = result.record || [];
             console.log('📊 Fetched leaderboard from server:', leaderboard);
+        } else {
+            console.error('❌ Server error:', response.status);
         }
     } catch (error) {
         console.error('❌ Error fetching leaderboard:', error);
