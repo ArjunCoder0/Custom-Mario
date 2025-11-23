@@ -90,7 +90,7 @@ body {
 /* Mobile Controls */
 .mobile-controls {
     position: fixed;
-    bottom: 20px;
+    bottom: 60px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 40px);
@@ -191,7 +191,7 @@ body {
     
     .mobile-controls {
         display: flex;
-        bottom: 20px;
+        bottom: 60px;
     }
     
     .mobile-btn {
