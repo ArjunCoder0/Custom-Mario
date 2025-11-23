@@ -47,16 +47,32 @@ let messageTimer = 0;
 
 // Adjust canvas and scale for mobile
 function adjustCanvasForMobile() {
-    // Set canvas size explicitly
-    canvas.width = 800;
-    canvas.height = 600;
-    
-    if (isMobile || window.innerWidth < 768) {
-        // Make everything MUCH bigger on mobile
+    if (isMobile || window.innerWidth <= 768) {
+        // Mobile: Adjust canvas to fit screen better
+        const maxWidth = window.innerWidth - 20;
+        const maxHeight = window.innerHeight - 160; // Account for HUD and controls
+        
+        // Maintain aspect ratio
+        const aspectRatio = 800 / 600;
+        let canvasWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+        let canvasHeight = canvasWidth / aspectRatio;
+        
+        if (canvasHeight > maxHeight) {
+            canvasHeight = maxHeight;
+            canvasWidth = canvasHeight * aspectRatio;
+        }
+        
+        canvas.width = 800; // Keep internal resolution
+        canvas.height = 600;
+        
+        // Scale everything bigger on mobile
         scaleFactor = 2;
         mario.width = 64;
         mario.height = 64;
     } else {
+        // Desktop: Standard size
+        canvas.width = 800;
+        canvas.height = 600;
         scaleFactor = 1;
         mario.width = 32;
         mario.height = 32;

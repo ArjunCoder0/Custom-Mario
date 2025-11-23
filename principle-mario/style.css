@@ -12,6 +12,8 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     font-family: 'Courier New', monospace;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .game-wrapper {
@@ -145,10 +147,60 @@ body {
     background: rgba(255, 69, 0, 0.9);
 }
 
-/* Show mobile controls only on mobile devices */
+/* Mobile Responsive Design */
 @media (max-width: 768px), (hover: none) {
+    body {
+        overflow: auto;
+    }
+    
+    .game-wrapper {
+        padding: 10px;
+        height: 100vh;
+        align-items: flex-start;
+        padding-top: 10px;
+    }
+    
+    .game-container {
+        width: 100%;
+        max-width: none;
+        height: calc(100vh - 20px);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #gameCanvas {
+        height: calc(100vh - 160px) !important;
+        width: 100% !important;
+        object-fit: contain;
+        background: #5c94fc;
+    }
+    
+    .hud {
+        padding: 10px 15px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    
+    .hud-value {
+        font-size: 16px;
+    }
+    
     .mobile-controls {
         display: flex;
+        bottom: 10px;
+        padding: 0 15px;
+    }
+    
+    .mobile-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+    
+    .jump-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 24px;
     }
 }
 
