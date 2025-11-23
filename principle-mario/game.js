@@ -11,19 +11,14 @@ let lastPlatformX = 0;
 let distance = 0;
 let bestScore = localStorage.getItem('bestScore') || 0;
 
-// Storage key for leaderboard
+// Storage key for leaderboard (backup)
 const STORAGE_KEY = 'customMarioLeaderboard';
 
+// Google Sheets API endpoint
+const GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbwyOawYjSwDTe48pSrCttDQsBb2GNQ6xx5r7GSKb7TOYIDEESVAJNyS-vXi9NYzdx8/exec';
+
 // Leaderboard system
-let leaderboard = (() => {
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-        console.error('Error loading leaderboard:', e);
-        return [];
-    }
-})();
+let leaderboard = [];
 let currentPlayerName = 'Anonymous';
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let scaleFactor = 1;
@@ -1031,9 +1026,12 @@ function gameLoop() {
 function startGame() {
     // Get player name from input
     const nameInput = document.getElementById('playerNameAtStart');
-    currentPlayerName = (nameInput && nameInput.value.trim()) || 'Anonymous';
+    const inputValue = nameInput ? nameInput.value.trim() : '';
+    currentPlayerName = inputValue || 'Anonymous';
     
     console.log('🎮 Starting game with player:', currentPlayerName);
+    console.log('📝 Name input element:', nameInput);
+    console.log('📝 Name input value:', inputValue);
     
     gameState = 'playing';
     score = 0;
@@ -1240,7 +1238,11 @@ function setupEventListeners() {
 }
 
 // Leaderboard Functions
-function saveScoreToServer() {
+async function saveScoreToServer() {
+    console.log('🔴 SAVE FUNCTION CALLED');
+    console.log('📊 Current player name:', currentPlayerName);
+    console.log('📊 Current score:', score);
+    
     const newEntry = {
         name: currentPlayerName,
         score: score,
@@ -1249,8 +1251,32 @@ function saveScoreToServer() {
         date: new Date().toLocaleString()
     };
     
-    console.log('💾 Saving score:', newEntry);
+    console.log('💾 Creating entry:', newEntry);
     
+    try {
+        // Try to save to Google Sheets
+        const response = await fetch(GOOGLE_SHEETS_API, {
+            method: 'POST',
+            body: JSON.stringify(newEntry)
+        });
+        
+        if (response.ok) {
+            console.log('✅ Score saved to Google Sheets successfully');
+            // Also save to localStorage as backup
+            saveToLocalStorage(newEntry);
+        } else {
+            console.error('❌ Google Sheets save failed:', response.status);
+            // Fallback to localStorage
+            saveToLocalStorage(newEntry);
+        }
+    } catch (error) {
+        console.error('❌ Error saving to Google Sheets:', error);
+        // Fallback to localStorage
+        saveToLocalStorage(newEntry);
+    }
+}
+
+function saveToLocalStorage(newEntry) {
     try {
         // Load current leaderboard from localStorage
         let leaderboardData = [];
@@ -1287,34 +1313,47 @@ function saveScoreToServer() {
         // Update in-memory leaderboard
         leaderboard = leaderboardData;
         
-        console.log('✅ Score saved successfully to storage');
+        console.log('✅ Score saved successfully to localStorage');
         console.log('🏆 Current leaderboard:', leaderboard);
     } catch (error) {
-        console.error('❌ Error saving score:', error);
+        console.error('❌ Error saving to localStorage:', error);
     }
 }
 
-function showLeaderboard() {
+async function showLeaderboard() {
     gameState = 'leaderboard';
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('leaderboardScreen').classList.remove('hidden');
     
-    console.log('🔄 Loading leaderboard from storage...');
+    console.log('🔄 Loading leaderboard...');
     
-    // Load leaderboard from localStorage
     try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            leaderboard = JSON.parse(stored);
-            console.log('� Loaded leaderboard:', leaderboard);
+        // Try to fetch from Google Sheets
+        const response = await fetch(GOOGLE_SHEETS_API);
+        if (response.ok) {
+            const data = await response.json();
+            leaderboard = data;
+            console.log('📊 Loaded leaderboard from Google Sheets:', leaderboard);
         } else {
-            console.log('📊 No leaderboard data found');
-            leaderboard = [];
+            throw new Error('Failed to fetch from Google Sheets');
         }
     } catch (error) {
-        console.error('❌ Error loading leaderboard:', error);
-        leaderboard = [];
+        console.error('❌ Error loading from Google Sheets:', error);
+        // Fallback to localStorage
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                leaderboard = JSON.parse(stored);
+                console.log('📊 Loaded leaderboard from localStorage:', leaderboard);
+            } else {
+                console.log('📊 No leaderboard data found');
+                leaderboard = [];
+            }
+        } catch (e) {
+            console.error('❌ Error loading from localStorage:', e);
+            leaderboard = [];
+        }
     }
     
     updateLeaderboardDisplay();
