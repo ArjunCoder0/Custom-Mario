@@ -90,7 +90,7 @@ body {
 /* Mobile Controls */
 .mobile-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: 80px;
     left: 0;
     right: 0;
     display: none;
@@ -169,7 +169,7 @@ body {
     }
     
     #gameCanvas {
-        height: calc(100vh - 160px) !important;
+        height: calc(100vh - 200px) !important;
         width: 100% !important;
         object-fit: contain;
         background: #5c94fc;
@@ -187,7 +187,7 @@ body {
     
     .mobile-controls {
         display: flex;
-        bottom: 10px;
+        bottom: 60px;
         padding: 0 15px;
     }
     
