@@ -1,6 +1,6 @@
-# Super Mario Infinite Runner 🎮
+# Principle Mario 🎮
 
-A production-ready infinite platformer game with procedural generation, retro music, and full mobile support!
+A production-ready infinite platformer game with procedural generation, retro music, and full mobile support! Upload your own character images to create your personalized Mario adventure!
 
 ## Features ✨
 
@@ -29,20 +29,20 @@ A production-ready infinite platformer game with procedural generation, retro mu
 
 ### Option 1: Python Server (Recommended)
 ```bash
-cd super-mario-prod
+cd principle-mario
 python -m http.server 8082
 ```
 Then open: http://localhost:8082
 
 ### Option 2: Node.js Server
 ```bash
-cd super-mario-prod
+cd principle-mario
 npx http-server -p 8082
 ```
 Then open: http://localhost:8082
 
 ### Option 3: Any Web Server
-Simply serve the `super-mario-prod` folder with any web server.
+Simply serve the `principle-mario` folder with any web server.
 
 ## Audio Troubleshooting 🔊
 
@@ -81,10 +81,13 @@ Edit `game.js` to customize:
 ## File Structure 📁
 
 ```
-super-mario-prod/
+principle-mario/
 ├── index.html      # Main HTML file
 ├── style.css       # All styles and responsive design
 ├── game.js         # Game logic, audio, and controls
+├── netlify.toml    # Netlify deployment config
+├── vercel.json     # Vercel deployment config
+├── DEPLOYMENT.md   # Deployment guide
 └── README.md       # This file
 ```
 
@@ -134,7 +137,7 @@ To modify the game:
 
 ## Credits 👏
 
-- Inspired by Super Mario Bros
+- Inspired by Super Mario Bros with a customizable twist
 - Built with vanilla JavaScript, HTML5 Canvas, and Web Audio API
 - No external dependencies required
 
