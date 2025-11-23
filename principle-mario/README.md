@@ -1,4 +1,4 @@
-# Principle Mario 🎮
+# Custom Mario 🎮
 
 A production-ready infinite platformer game with procedural generation, retro music, and full mobile support! Upload your own character images to create your personalized Mario adventure!
 
@@ -29,20 +29,20 @@ A production-ready infinite platformer game with procedural generation, retro mu
 
 ### Option 1: Python Server (Recommended)
 ```bash
-cd principle-mario
+cd custom-mario
 python -m http.server 8082
 ```
 Then open: http://localhost:8082
 
 ### Option 2: Node.js Server
 ```bash
-cd principle-mario
+cd custom-mario
 npx http-server -p 8082
 ```
 Then open: http://localhost:8082
 
 ### Option 3: Any Web Server
-Simply serve the `principle-mario` folder with any web server.
+Simply serve the `custom-mario` folder with any web server.
 
 ## Audio Troubleshooting 🔊
 
@@ -81,7 +81,7 @@ Edit `game.js` to customize:
 ## File Structure 📁
 
 ```
-principle-mario/
+custom-mario/
 ├── index.html      # Main HTML file
 ├── style.css       # All styles and responsive design
 ├── game.js         # Game logic, audio, and controls
