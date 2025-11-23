@@ -47,6 +47,10 @@ let messageTimer = 0;
 
 // Adjust canvas and scale for mobile
 function adjustCanvasForMobile() {
+    // Set canvas size explicitly
+    canvas.width = 800;
+    canvas.height = 600;
+    
     if (isMobile || window.innerWidth < 768) {
         // Make everything MUCH bigger on mobile
         scaleFactor = 2;
@@ -58,6 +62,7 @@ function adjustCanvasForMobile() {
         mario.height = 32;
     }
     console.log('📱 Scale factor:', scaleFactor);
+    console.log('🎨 Canvas size:', canvas.width, 'x', canvas.height);
 }
 
 // Controls
@@ -1163,8 +1168,17 @@ function initialize() {
         return;
     }
     
+    console.log('✅ Canvas found:', canvas);
+    console.log('✅ Context found:', ctx);
+    
     // Adjust for mobile
     adjustCanvasForMobile();
+    
+    // Test canvas immediately
+    console.log('🧪 Testing canvas...');
+    ctx.fillStyle = 'green';
+    ctx.fillRect(0, 0, 100, 100);
+    console.log('🧪 Green square drawn');
     
     // Setup event listeners first
     setupEventListeners();
