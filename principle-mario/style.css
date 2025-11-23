@@ -85,6 +85,73 @@ body {
     transform: scale(1.1);
 }
 
+/* Mobile Controls */
+.mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: none;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.mobile-left-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.mobile-right-controls {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-btn {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: all;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.mobile-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}
+
+.jump-btn {
+    width: 80px;
+    height: 80px;
+    font-size: 30px;
+    background: rgba(220, 20, 60, 0.8);
+    border-color: #fff;
+}
+
+.jump-btn:active {
+    background: rgba(255, 69, 0, 0.9);
+}
+
+/* Show mobile controls only on mobile devices */
+@media (max-width: 768px), (hover: none) {
+    .mobile-controls {
+        display: flex;
+    }
+}
+
 /* Screens */
 .screen {
     position: absolute;

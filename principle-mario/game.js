@@ -1012,7 +1012,11 @@ function startGame() {
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('pauseScreen').classList.add('hidden');
     
-    // Mobile controls removed - use keyboard/touch on canvas instead
+    // Show mobile controls during gameplay
+    const mobileControls = document.getElementById('mobileControls');
+    if (mobileControls && (isMobile || window.innerWidth <= 768)) {
+        mobileControls.style.display = 'flex';
+    }
     
     startBackgroundMusic();
 }
@@ -1022,6 +1026,12 @@ function pauseGame() {
         gameState = 'paused';
         stopBackgroundMusic();
         document.getElementById('pauseScreen').classList.remove('hidden');
+        
+        // Hide mobile controls during pause
+        const mobileControls = document.getElementById('mobileControls');
+        if (mobileControls) {
+            mobileControls.style.display = 'none';
+        }
     }
 }
 
@@ -1030,6 +1040,12 @@ function resumeGame() {
         gameState = 'playing';
         document.getElementById('pauseScreen').classList.add('hidden');
         startBackgroundMusic();
+        
+        // Show mobile controls when resuming on mobile
+        const mobileControls = document.getElementById('mobileControls');
+        if (mobileControls && (isMobile || window.innerWidth <= 768)) {
+            mobileControls.style.display = 'flex';
+        }
     }
 }
 
@@ -1057,6 +1073,12 @@ function returnToMenu() {
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('pauseScreen').classList.add('hidden');
     document.getElementById('startScreen').classList.remove('hidden');
+    
+    // Hide mobile controls when returning to menu
+    const mobileControls = document.getElementById('mobileControls');
+    if (mobileControls) {
+        mobileControls.style.display = 'none';
+    }
 }
 
 // Event listeners
