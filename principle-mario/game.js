@@ -1155,7 +1155,6 @@ function setupEventListeners() {
     const saveScoreBtn = document.getElementById('saveScoreBtn');
     const leaderboardBtn = document.getElementById('leaderboardBtn');
     const viewLeaderboardBtn = document.getElementById('viewLeaderboardBtn');
-    const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
     
     if (testAudioBtn) {
@@ -1185,7 +1184,6 @@ function setupEventListeners() {
     if (saveScoreBtn) saveScoreBtn.addEventListener('click', saveHighScore);
     if (leaderboardBtn) leaderboardBtn.addEventListener('click', showLeaderboard);
     if (viewLeaderboardBtn) viewLeaderboardBtn.addEventListener('click', showLeaderboard);
-    if (clearLeaderboardBtn) clearLeaderboardBtn.addEventListener('click', clearLeaderboard);
     if (backToMenuBtn) backToMenuBtn.addEventListener('click', hideLeaderboard);
     
     // Enter key for name input
