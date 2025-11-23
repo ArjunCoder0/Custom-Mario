@@ -969,6 +969,9 @@ function drawCredits() {
 
 function gameLoop() {
     if (gameState === 'playing') {
+        // Clear canvas first
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         drawBackground();
         updateWorld();
         drawPlatforms();
@@ -984,6 +987,10 @@ function gameLoop() {
         drawCombo();
         drawPowerUpBar();
         drawCredits();
+        
+        // Debug: Draw a test rectangle to ensure canvas is working
+        ctx.fillStyle = 'red';
+        ctx.fillRect(10, 10, 50, 50);
     }
     
     requestAnimationFrame(gameLoop);

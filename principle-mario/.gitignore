@@ -18,3 +18,4 @@ node_modules/
 # Build files (if you add build process later)
 dist/
 build/
+.vercel
