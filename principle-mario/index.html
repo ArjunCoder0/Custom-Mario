@@ -71,6 +71,7 @@
                 </div>
                 
                              <button id="startBtn" class="game-btn">START GAME</button>
+                <button id="viewLeaderboardBtn" class="game-btn secondary">VIEW LEADERBOARD</button>
                 <div class="version">v1.0.0 | Made by Arjun 💻</div>
             </div>
             
@@ -103,8 +104,29 @@
                         <span id="bestScore" class="stat-value">0</span>
                     </div>
                 </div>
+                
+                <!-- High Score Entry -->
+                <div id="highScoreEntry" class="high-score-entry hidden">
+                    <h3>🎉 NEW HIGH SCORE! 🎉</h3>
+                    <input type="text" id="playerNameInput" placeholder="Enter your name" maxlength="20">
+                    <button id="saveScoreBtn" class="game-btn">SAVE SCORE</button>
+                </div>
+                
                 <button id="restartBtn" class="game-btn">PLAY AGAIN</button>
+                <button id="leaderboardBtn" class="game-btn secondary">LEADERBOARD</button>
                 <button id="menuBtn" class="game-btn secondary">MAIN MENU</button>
+            </div>
+            
+            <!-- Leaderboard Screen -->
+            <div id="leaderboardScreen" class="screen hidden">
+                <h1>🏆 LEADERBOARD 🏆</h1>
+                <div class="leaderboard-container">
+                    <div id="leaderboardList" class="leaderboard-list">
+                        <!-- Leaderboard entries will be populated here -->
+                    </div>
+                </div>
+                <button id="clearLeaderboardBtn" class="game-btn secondary">CLEAR SCORES</button>
+                <button id="backToMenuBtn" class="game-btn">BACK TO MENU</button>
             </div>
             
             <!-- Loading Screen -->

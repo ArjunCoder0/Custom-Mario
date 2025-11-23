@@ -10,6 +10,9 @@ let cameraX = 0;
 let lastPlatformX = 0;
 let distance = 0;
 let bestScore = localStorage.getItem('bestScore') || 0;
+
+// Leaderboard system
+let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let scaleFactor = 1;
 let comboCount = 0;
@@ -1074,12 +1077,24 @@ function endGame() {
     document.getElementById('finalDistance').textContent = distance;
     document.getElementById('finalCoins').textContent = coins;
     
+    // Check if it's a high score (top 10)
+    const isHighScore = leaderboard.length < 10 || score > leaderboard[leaderboard.length - 1].score;
+    
     if (score > bestScore) {
         bestScore = score;
         localStorage.setItem('bestScore', bestScore);
     }
     
     document.getElementById('bestScore').textContent = bestScore;
+    
+    // Show high score entry if it's a qualifying score
+    if (isHighScore && score > 0) {
+        document.getElementById('highScoreEntry').classList.remove('hidden');
+        document.getElementById('playerNameInput').focus();
+    } else {
+        document.getElementById('highScoreEntry').classList.add('hidden');
+    }
+    
     document.getElementById('gameOverScreen').classList.remove('hidden');
 }
 
@@ -1088,6 +1103,7 @@ function returnToMenu() {
     stopBackgroundMusic();
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('pauseScreen').classList.add('hidden');
+    document.getElementById('leaderboardScreen').classList.add('hidden');
     document.getElementById('startScreen').classList.remove('hidden');
     
     // Hide mobile controls when returning to menu
@@ -1124,6 +1140,11 @@ function setupEventListeners() {
     const restartFromPauseBtn = document.getElementById('restartFromPauseBtn');
     const quitBtn = document.getElementById('quitBtn');
     const menuBtn = document.getElementById('menuBtn');
+    const saveScoreBtn = document.getElementById('saveScoreBtn');
+    const leaderboardBtn = document.getElementById('leaderboardBtn');
+    const viewLeaderboardBtn = document.getElementById('viewLeaderboardBtn');
+    const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
     
     if (testAudioBtn) {
         testAudioBtn.addEventListener('click', () => {
@@ -1147,6 +1168,23 @@ function setupEventListeners() {
     if (restartFromPauseBtn) restartFromPauseBtn.addEventListener('click', startGame);
     if (quitBtn) quitBtn.addEventListener('click', returnToMenu);
     if (menuBtn) menuBtn.addEventListener('click', returnToMenu);
+    
+    // Leaderboard event listeners
+    if (saveScoreBtn) saveScoreBtn.addEventListener('click', saveHighScore);
+    if (leaderboardBtn) leaderboardBtn.addEventListener('click', showLeaderboard);
+    if (viewLeaderboardBtn) viewLeaderboardBtn.addEventListener('click', showLeaderboard);
+    if (clearLeaderboardBtn) clearLeaderboardBtn.addEventListener('click', clearLeaderboard);
+    if (backToMenuBtn) backToMenuBtn.addEventListener('click', hideLeaderboard);
+    
+    // Enter key for name input
+    const playerNameInput = document.getElementById('playerNameInput');
+    if (playerNameInput) {
+        playerNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveHighScore();
+            }
+        });
+    }
 
     // Mobile controls
     const leftBtn = document.getElementById('leftBtn');
@@ -1190,6 +1228,79 @@ function setupEventListeners() {
     }
     
     console.log('✅ Event listeners setup complete');
+}
+
+// Leaderboard Functions
+function saveHighScore() {
+    const playerName = document.getElementById('playerNameInput').value.trim() || 'Anonymous';
+    
+    // Add new score to leaderboard
+    leaderboard.push({
+        name: playerName,
+        score: score,
+        distance: distance,
+        coins: coins,
+        date: new Date().toLocaleDateString()
+    });
+    
+    // Sort by score (highest first) and keep only top 10
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 10);
+    
+    // Save to localStorage
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    
+    // Hide high score entry
+    document.getElementById('highScoreEntry').classList.add('hidden');
+    
+    console.log('✅ High score saved:', playerName, score);
+}
+
+function showLeaderboard() {
+    gameState = 'leaderboard';
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('leaderboardScreen').classList.remove('hidden');
+    
+    updateLeaderboardDisplay();
+}
+
+function updateLeaderboardDisplay() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    
+    if (leaderboard.length === 0) {
+        leaderboardList.innerHTML = '<div class="leaderboard-empty">No scores yet! Be the first to play!</div>';
+        return;
+    }
+    
+    leaderboardList.innerHTML = leaderboard.map((entry, index) => {
+        const rank = index + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : '';
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+        
+        return `
+            <div class="leaderboard-entry ${rankClass}">
+                <div class="leaderboard-rank">${medal}</div>
+                <div class="leaderboard-name">${entry.name}</div>
+                <div class="leaderboard-score">${entry.score}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function clearLeaderboard() {
+    if (confirm('Are you sure you want to clear all scores? This cannot be undone!')) {
+        leaderboard = [];
+        localStorage.removeItem('leaderboard');
+        updateLeaderboardDisplay();
+        console.log('✅ Leaderboard cleared');
+    }
+}
+
+function hideLeaderboard() {
+    document.getElementById('leaderboardScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+    gameState = 'start';
 }
 
 // Initialize when DOM is ready
