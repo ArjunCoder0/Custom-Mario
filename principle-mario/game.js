@@ -50,7 +50,7 @@ function adjustCanvasForMobile() {
     if (isMobile || window.innerWidth <= 768) {
         // Mobile: Adjust canvas to fit screen better
         const maxWidth = window.innerWidth - 20;
-        const maxHeight = window.innerHeight - 200; // Account for HUD and controls
+        const maxHeight = window.innerHeight - 250; // Account for HUD and controls
         
         // Maintain aspect ratio
         const aspectRatio = 800 / 600;
