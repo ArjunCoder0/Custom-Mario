@@ -12,7 +12,11 @@ let distance = 0;
 let bestScore = localStorage.getItem('bestScore') || 0;
 
 // Leaderboard system
-let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+let leaderboard = [];
+let currentPlayerName = 'Anonymous';
+
+// Backend API endpoint (using a simple JSON storage service)
+const API_URL = 'https://api.jsonbin.io/v3/b/6756a8e5acd3cb34a8e8e8a8';
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 let scaleFactor = 1;
 let comboCount = 0;
@@ -1017,6 +1021,12 @@ function gameLoop() {
 }
 
 function startGame() {
+    // Get player name from input
+    const nameInput = document.getElementById('playerNameAtStart');
+    currentPlayerName = (nameInput && nameInput.value.trim()) || 'Anonymous';
+    
+    console.log('🎮 Starting game with player:', currentPlayerName);
+    
     gameState = 'playing';
     score = 0;
     coins = 0;
@@ -1084,27 +1094,9 @@ function endGame() {
     
     document.getElementById('bestScore').textContent = bestScore;
     
-    // Check if it's a high score (top 10)
-    let isHighScore = false;
-    if (leaderboard.length < 10) {
-        // If we have less than 10 scores, any score > 0 qualifies
-        isHighScore = score > 0;
-    } else {
-        // If we have 10 scores, check if this score beats the lowest
-        isHighScore = score > leaderboard[9].score;
-    }
-    
-    console.log('🏆 Score check:', score, 'Leaderboard length:', leaderboard.length, 'Is high score:', isHighScore);
-    
-    // Show high score entry if it's a qualifying score
-    if (isHighScore) {
-        document.getElementById('highScoreEntry').classList.remove('hidden');
-        document.getElementById('playerNameInput').value = ''; // Clear previous input
-        document.getElementById('playerNameInput').focus();
-        console.log('✅ Showing high score entry');
-    } else {
-        document.getElementById('highScoreEntry').classList.add('hidden');
-        console.log('❌ Not a high score');
+    // Auto-save score to server
+    if (score > 0) {
+        saveScoreToServer();
     }
     
     document.getElementById('gameOverScreen').classList.remove('hidden');
@@ -1181,17 +1173,16 @@ function setupEventListeners() {
     if (menuBtn) menuBtn.addEventListener('click', returnToMenu);
     
     // Leaderboard event listeners
-    if (saveScoreBtn) saveScoreBtn.addEventListener('click', saveHighScore);
     if (leaderboardBtn) leaderboardBtn.addEventListener('click', showLeaderboard);
     if (viewLeaderboardBtn) viewLeaderboardBtn.addEventListener('click', showLeaderboard);
     if (backToMenuBtn) backToMenuBtn.addEventListener('click', hideLeaderboard);
     
-    // Enter key for name input
-    const playerNameInput = document.getElementById('playerNameInput');
-    if (playerNameInput) {
-        playerNameInput.addEventListener('keypress', (e) => {
+    // Enter key for name input at start screen
+    const playerNameAtStart = document.getElementById('playerNameAtStart');
+    if (playerNameAtStart) {
+        playerNameAtStart.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                saveHighScore();
+                startGame();
             }
         });
     }
@@ -1241,43 +1232,82 @@ function setupEventListeners() {
 }
 
 // Leaderboard Functions
-function saveHighScore() {
-    const playerName = document.getElementById('playerNameInput').value.trim() || 'Anonymous';
-    
-    console.log('💾 Saving high score:', playerName, score);
-    
-    // Add new score to leaderboard
+async function saveScoreToServer() {
     const newEntry = {
-        name: playerName,
+        name: currentPlayerName,
         score: score,
         distance: distance,
         coins: coins,
-        date: new Date().toLocaleDateString()
+        date: new Date().toLocaleString()
     };
     
-    leaderboard.push(newEntry);
-    console.log('📝 Added to leaderboard:', newEntry);
+    console.log('💾 Saving score to server:', newEntry);
     
-    // Sort by score (highest first) and keep only top 10
-    leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 10);
-    
-    console.log('📊 Updated leaderboard:', leaderboard);
-    
-    // Save to localStorage
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-    
-    // Hide high score entry
-    document.getElementById('highScoreEntry').classList.add('hidden');
-    
-    console.log('✅ High score saved successfully');
+    try {
+        // Fetch current leaderboard
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+            }
+        });
+        
+        let data = { record: [] };
+        if (response.ok) {
+            const result = await response.json();
+            data = result.record || { record: [] };
+        }
+        
+        // Add new score
+        if (!Array.isArray(data.record)) {
+            data.record = [];
+        }
+        data.record.push(newEntry);
+        
+        // Sort and keep top 10
+        data.record.sort((a, b) => b.score - a.score);
+        data.record = data.record.slice(0, 10);
+        
+        // Save back to server
+        await fetch(API_URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        leaderboard = data.record;
+        console.log('✅ Score saved to server successfully');
+    } catch (error) {
+        console.error('❌ Error saving score:', error);
+    }
 }
 
-function showLeaderboard() {
+async function showLeaderboard() {
     gameState = 'leaderboard';
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.add('hidden');
     document.getElementById('leaderboardScreen').classList.remove('hidden');
+    
+    // Fetch latest leaderboard from server
+    try {
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': '$2b$10$K1.1u3DSVRBVvxksuQeUNeBPpChGIrH4z5KnEiknkKc8fV5.PK7FW'
+            }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            leaderboard = result.record?.record || [];
+            console.log('📊 Fetched leaderboard from server:', leaderboard);
+        }
+    } catch (error) {
+        console.error('❌ Error fetching leaderboard:', error);
+    }
     
     updateLeaderboardDisplay();
 }

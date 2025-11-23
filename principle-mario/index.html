@@ -50,6 +50,12 @@
             <div id="startScreen" class="screen">
                 <h1 class="game-title">CUSTOM MARIO<br><span class="subtitle">YOUR CHARACTER, YOUR ADVENTURE</span></h1>
                 
+                <!-- Player Name Input -->
+                <div class="player-name-section">
+                    <h3>👤 Enter Your Name</h3>
+                    <input type="text" id="playerNameAtStart" placeholder="Enter your name" maxlength="20">
+                </div>
+                
                 <div class="controls-info">
                     <h3>🎮 Controls</h3>
                     <p>⬅️➡️ Arrow Keys / WASD: Move</p>
@@ -103,13 +109,6 @@
                         <span class="stat-label">Best Score:</span>
                         <span id="bestScore" class="stat-value">0</span>
                     </div>
-                </div>
-                
-                <!-- High Score Entry -->
-                <div id="highScoreEntry" class="high-score-entry hidden">
-                    <h3>🎉 NEW HIGH SCORE! 🎉</h3>
-                    <input type="text" id="playerNameInput" placeholder="Enter your name" maxlength="20">
-                    <button id="saveScoreBtn" class="game-btn">SAVE SCORE</button>
                 </div>
                 
                 <button id="restartBtn" class="game-btn">PLAY AGAIN</button>
