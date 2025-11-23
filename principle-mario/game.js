@@ -1077,9 +1077,6 @@ function endGame() {
     document.getElementById('finalDistance').textContent = distance;
     document.getElementById('finalCoins').textContent = coins;
     
-    // Check if it's a high score (top 10)
-    const isHighScore = leaderboard.length < 10 || score > leaderboard[leaderboard.length - 1].score;
-    
     if (score > bestScore) {
         bestScore = score;
         localStorage.setItem('bestScore', bestScore);
@@ -1087,12 +1084,27 @@ function endGame() {
     
     document.getElementById('bestScore').textContent = bestScore;
     
+    // Check if it's a high score (top 10)
+    let isHighScore = false;
+    if (leaderboard.length < 10) {
+        // If we have less than 10 scores, any score > 0 qualifies
+        isHighScore = score > 0;
+    } else {
+        // If we have 10 scores, check if this score beats the lowest
+        isHighScore = score > leaderboard[9].score;
+    }
+    
+    console.log('🏆 Score check:', score, 'Leaderboard length:', leaderboard.length, 'Is high score:', isHighScore);
+    
     // Show high score entry if it's a qualifying score
-    if (isHighScore && score > 0) {
+    if (isHighScore) {
         document.getElementById('highScoreEntry').classList.remove('hidden');
+        document.getElementById('playerNameInput').value = ''; // Clear previous input
         document.getElementById('playerNameInput').focus();
+        console.log('✅ Showing high score entry');
     } else {
         document.getElementById('highScoreEntry').classList.add('hidden');
+        console.log('❌ Not a high score');
     }
     
     document.getElementById('gameOverScreen').classList.remove('hidden');
@@ -1234,18 +1246,25 @@ function setupEventListeners() {
 function saveHighScore() {
     const playerName = document.getElementById('playerNameInput').value.trim() || 'Anonymous';
     
+    console.log('💾 Saving high score:', playerName, score);
+    
     // Add new score to leaderboard
-    leaderboard.push({
+    const newEntry = {
         name: playerName,
         score: score,
         distance: distance,
         coins: coins,
         date: new Date().toLocaleDateString()
-    });
+    };
+    
+    leaderboard.push(newEntry);
+    console.log('📝 Added to leaderboard:', newEntry);
     
     // Sort by score (highest first) and keep only top 10
     leaderboard.sort((a, b) => b.score - a.score);
     leaderboard = leaderboard.slice(0, 10);
+    
+    console.log('📊 Updated leaderboard:', leaderboard);
     
     // Save to localStorage
     localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
@@ -1253,7 +1272,7 @@ function saveHighScore() {
     // Hide high score entry
     document.getElementById('highScoreEntry').classList.add('hidden');
     
-    console.log('✅ High score saved:', playerName, score);
+    console.log('✅ High score saved successfully');
 }
 
 function showLeaderboard() {
